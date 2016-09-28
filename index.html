@@ -11,10 +11,14 @@
   <link href="./vendors/pygments/github.css" rel="stylesheet">
   <link href="./vendors/typo.min.css" rel="stylesheet">
   <link href="./css/theme-default.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
   <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <style type="text/css" media="screen">
+  #foot-about {display: none; }
   @media screen and (max-width: 760px) {
    #navbar { display: none; }
+   #foot-about {display: block; }
+   h2 { margin-top: 0.4em; margin-bottom: 0.3em; } 
   }
   </style>
 </head>
@@ -26,7 +30,7 @@
     </div>
     <div id="navbar">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/pages/about.html">About</a></li>
+        <li><a href="pages/about.html">About</a></li>
       </ul>
     </div>
   </div>
@@ -115,6 +119,14 @@
   </div>
 </div>
 
-<div class="container"><div class="footer"><div class="footer-wrapper"><hr><p> © · 2016-2017 &nbsp;<a href="http://nonocast.com">nonocast</a></p></div></div></div>
+<div class="container">
+  <div class="footer">
+    <div class="footer-wrapper">
+      <hr>
+      <p> © · 2016-2017 &nbsp;<a href="http://nonocast.cn">nonocast</a><span></p>
+      <p id="foot-about"><a href="pages/about.html">About</a></p>
+    </div>
+  </div>
+</div>
 </body>
 </html>
