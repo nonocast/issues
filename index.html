@@ -7,19 +7,25 @@
   <meta name="author" content="nonocast">
   <!-- <link rel="shortcut icon" href="public/favicon.ico"> -->
   <title>nonocast</title>
-  <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
   <link href="./vendors/pygments/github.css" rel="stylesheet">
   <link href="./vendors/typo.min.css" rel="stylesheet">
   <link href="./css/theme-default.css" rel="stylesheet">
+  <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <style type="text/css" media="screen">
+  @media screen and (max-width: 760px) {
+   #navbar { display: none; }
+  }
+  </style>
 </head>
 <body class="typo">
 <nav class="navbar navbar-bright">
   <div class="container">
-    <div class="navbar-header pull-left">
+    <div class="navbar-header navbar-left">
       <a class="navbar-brand" href="/">nonocast</a>
     </div>
-    <div id="navbar" class="navbar-header pull-right">
-      <ul class="nav navbar-nav">
+    <div id="navbar">
+      <ul class="nav navbar-nav navbar-right">
         <li><a href="/pages/about.html">About</a></li>
       </ul>
     </div>
