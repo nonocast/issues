@@ -2,6 +2,7 @@ class Shape
   x: -> return @el.tbox().x
   y: -> return @el.tbox().y
   focus: (value) ->
+  destroy: => @el.remove()
 
 class Label extends Shape
   constructor: (@parent, x = 0, y = 0)->
@@ -19,11 +20,11 @@ class Label extends Shape
     @el.on 'mouseup', (e) =>
       if isDrag || downEvent != null && e.pageX == downEvent.pageX && e.pageY == downEvent.pageY
         e.selection = @parent.selection
-        @parent.onSelect [this]
+        @parent.select [this]
 
     @el.on 'dragstart', (e) =>
       isDrag = true
-      @parent.onSelect [this]
+      @parent.select [this]
     
     fobj.on 'mousedown', (e) -> e.preventDefault()
     fobj.on 'mouseup', (e) ->
@@ -41,7 +42,7 @@ class Label extends Shape
     if value
       @main.addClass 'svg-label-focus'
     else
-      @main.removeClass 'svg-label-focus'
+       @main.removeClass 'svg-label-focus'
 
 class Joint extends Shape
   constructor: (@parent, x = 0, y = 0, cpX = 0, cpY = 0) ->
@@ -97,7 +98,7 @@ class Joint extends Shape
             result = joint
 
       if result && result != this
-        @root.addConnection new Connection(this, result)
+        @root.addConnection new Connection(@root, this, result)
 
 
   curveTo: (p) =>
@@ -109,16 +110,26 @@ class Joint extends Shape
   y: -> return @el.tbox().y + @r
 
 class Connection extends Shape
-  constructor: (@joint1, @joint2) ->
-    @el = new SVG.Path().addClass("svg-connection").plot @curve()
+  constructor: (@parent, @joint1, @joint2) ->
+    @el = new SVG.G()
+    @entity = @el.path().addClass("svg-connection").plot @curve()
+    @ghost = @el.path().addClass("svg-connection-ghost").plot @curve()
 
     @joint1.parent.el.on 'dragmove', @update
     @joint2.parent.el.on 'dragmove', @update
 
     @el.on "mouseup", (e) =>
-      console.log "connection: mouseup"
+      e.selection = @parent.selection
+      @parent.select [this]
 
-  update: => @el.plot @curve()
+  focus: (value) =>
+    @isfocus = value
+    if value then @entity.addClass 'svg-connection-focus' else @entity.removeClass 'svg-connection-focus'
+
+  update: =>
+    c = @curve()
+    @entity.plot c
+    @ghost.plot c
 
   line: => "M #{@joint1.x()},#{@joint1.y()} L #{@joint2.x()},#{@joint2.y()}"
   curve: =>
@@ -138,7 +149,10 @@ class Editor
     @init()
 
   init: ->
-    @draw.on 'mouseup', (e) => @onSelect null unless e.selection?
+    @draw.on 'mouseup', (e) => @select null unless e.selection?
+    $(document).on 'keypress', (e) =>
+      if e.keyCode == 8
+        @remove each for each in @selection
 
   addLabel: (label) ->
     @labels.push label
@@ -148,7 +162,7 @@ class Editor
     @connections.push connection
     @draw.add connection.el, 1
 
-  onSelect: (shapes) =>
+  select: (shapes) =>
     each.focus false for each in @selection
     if shapes?
       @selection = shapes
@@ -156,20 +170,33 @@ class Editor
       @selection = []
     each.focus true for each in @selection
 
+  remove: (shape) =>
+    console.log shape
+    if shape instanceof Connection
+      @connections = @connections.filter (x) -> x != shape
+    else if shape instanceof Label
+      @labels = @labels.filter (x) -> x != shape
+      for c in @connections
+        @remove c if c.joint1.parent == shape or c.joint2.parent == shape
+    else
+      console.log "unknown remove"
+
+    shape.destroy()
+    @select null # clear selection
+
   sample: ->
     label1 = new Label(this, 100, 300)
     label2 = new Label(this, 550, 140)
     label3 = new Label(this, 700, 400)
 
-    @addLabel new Label(this, 10, 10)
-
     @addLabel label1
     @addLabel label2
     @addLabel label3
 
-    @addConnection new Connection(label1.right, label3.left)
-    @addConnection new Connection(label1.right, label2.left)
+    @addConnection new Connection(this, label1.right, label3.left)
+    @addConnection new Connection(this, label1.right, label2.left)
 
+  # TODO: using SVG.Point instead
   windowToCanvas: (x, y) =>
     bounding = @draw.node.getBoundingClientRect()
     result = {
