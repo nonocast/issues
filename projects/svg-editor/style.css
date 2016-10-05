@@ -8,6 +8,9 @@
   stroke: #48cfad;
   stroke-width: 2px;
 }
+.svg-label-focus {
+  stroke: #f6bb42;
+}
 #svg-label-title {
   width: 90%;
   margin: auto;
@@ -30,10 +33,14 @@
   outline: none;
 }
 .svg-joint {
-  opacity: 1;
+  opacity: 0.1;
   fill: white;
   stroke: #37bc9b;
   stroke-width: 3px;
+}
+.svg-joint-highlight {
+  stroke: #f6bb42;
+  opacity: 1.0;
 }
 .svg-joint:hover {
   opacity: .7;
@@ -41,6 +48,12 @@
 .svg-connection {
   stroke: #37bc9b;
   stroke-width: 2px;
+  fill: none;
+}
+.svg-connection-ghost {
+  stroke: red;
+  opacity: .5;
+  stroke-width: 10px;
   fill: none;
 }
 .svg-drag-connection {

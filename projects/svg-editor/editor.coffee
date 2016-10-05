@@ -1,6 +1,7 @@
 class Shape
   x: -> return @el.tbox().x
   y: -> return @el.tbox().y
+  focus: (value) ->
 
 class Label extends Shape
   constructor: (@parent, x = 0, y = 0)->
@@ -11,7 +12,19 @@ class Label extends Shape
     @bottom = new Joint(this, 110, 40, 110, 140)
     @left = new Joint(this, 0, 20, -100, 20)
     @right = new Joint(this, 220, 20, 320, 20)
+    @isfocus = false
+    
+    downEvent = null
+    isDrag = false
+    @el.on 'mouseup', (e) =>
+      if isDrag || downEvent != null && e.pageX == downEvent.pageX && e.pageY == downEvent.pageY
+        e.selection = @parent.selection
+        @parent.onSelect [this]
 
+    @el.on 'dragstart', (e) =>
+      isDrag = true
+      @parent.onSelect [this]
+    
     fobj.on 'mousedown', (e) -> e.preventDefault()
     fobj.on 'mouseup', (e) ->
       # edit when up in div
@@ -22,6 +35,13 @@ class Label extends Shape
       sel = window.getSelection()
       sel.removeAllRanges()
       sel.addRange(range)
+
+  focus: (value) ->
+    @isfocus = value
+    if value
+      @main.addClass 'svg-label-focus'
+    else
+      @main.removeClass 'svg-label-focus'
 
 class Joint extends Shape
   constructor: (@parent, x = 0, y = 0, cpX = 0, cpY = 0) ->
@@ -56,10 +76,9 @@ class Joint extends Shape
         for joint in [each.left, each.right, each.top, each.bottom]
           t = q.transform joint.el.matrixify().inverse()
           if joint.el.inside t.x, t.y
-            joint.el.scale 2, 2
+            joint.el.scale(2, 2).addClass('svg-joint-highlight')
           else
-            joint.el.scale 1, 1
-
+            joint.el.scale(1, 1).removeClass('svg-joint-highlight')
 
     @el.on "dragend", (e) =>
       tmpline.remove()
@@ -73,7 +92,7 @@ class Joint extends Shape
         q = pos.transform each.el.matrixify().inverse()
         for joint in [each.left, each.right, each.top, each.bottom]
           t = q.transform joint.el.matrixify().inverse()
-          joint.el.scale 1, 1
+          joint.el.scale(1, 1).removeClass('svg-joint-highlight')
           if joint.el.inside t.x, t.y
             result = joint
 
@@ -92,13 +111,16 @@ class Joint extends Shape
 class Connection extends Shape
   constructor: (@joint1, @joint2) ->
     @el = new SVG.Path().addClass("svg-connection").plot @curve()
+
     @joint1.parent.el.on 'dragmove', @update
     @joint2.parent.el.on 'dragmove', @update
+
+    @el.on "mouseup", (e) =>
+      console.log "connection: mouseup"
 
   update: => @el.plot @curve()
 
   line: => "M #{@joint1.x()},#{@joint1.y()} L #{@joint2.x()},#{@joint2.y()}"
-  # curve: => "M #{@joint1.x()},#{@joint1.y()} C #{@joint1.x()+100},#{@joint1.y()} #{@joint2.x()-100},#{@joint2.y()}  #{@joint2.x()},#{@joint2.y()}"
   curve: =>
     cp1 = { x: @joint1.cp.tbox().x + @joint1.r, y: @joint1.cp.tbox().y + @joint1.r }
     cp2 = { x: @joint2.cp.tbox().x + @joint2.r, y: @joint2.cp.tbox().y + @joint2.r }
@@ -109,12 +131,14 @@ class Editor
   constructor: (name) ->
     @labels = []
     @connections = []
+    @selection = []
 
     @draw = SVG(name).size('100%', '100%')
     @sample()
     @init()
 
   init: ->
+    @draw.on 'mouseup', (e) => @onSelect null unless e.selection?
 
   addLabel: (label) ->
     @labels.push label
@@ -122,8 +146,15 @@ class Editor
 
   addConnection: (connection) ->
     @connections.push connection
-    # insert before label
     @draw.add connection.el, 1
+
+  onSelect: (shapes) =>
+    each.focus false for each in @selection
+    if shapes?
+      @selection = shapes
+    else
+      @selection = []
+    each.focus true for each in @selection
 
   sample: ->
     label1 = new Label(this, 100, 300)
