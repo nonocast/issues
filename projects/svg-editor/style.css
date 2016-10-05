@@ -1,0 +1,50 @@
+* { padding: 0; margin: 0; }
+.fullscreen {position: fixed; top: 0; left: 0; right: 0; bottom: 0; background:red; }
+#editor {
+  background: #f5f7fa;
+}
+.svg-label {
+  fill: #fff;
+  stroke: #48cfad;
+  stroke-width: 2px;
+}
+#svg-label-title {
+  width: 90%;
+  margin: auto;
+  padding-top:8px;
+  text-align: center;
+  outline: none;
+  font-size: 1.2em;
+  color: #48cfad;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#svg-label-title br {
+    display:none;
+}
+#svg-label-title * {
+    display:inline;
+    white-space:nowrap;
+}
+.svg-label *:focus {
+  outline: none;
+}
+.svg-joint {
+  opacity: 1;
+  fill: white;
+  stroke: #37bc9b;
+  stroke-width: 3px;
+}
+.svg-joint:hover {
+  opacity: .7;
+}
+.svg-connection {
+  stroke: #37bc9b;
+  stroke-width: 2px;
+  fill: none;
+}
+.svg-drag-connection {
+  stroke: #48cfad;
+  stroke-width: 2px;
+  fill: none;
+}
