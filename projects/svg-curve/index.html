@@ -7,19 +7,35 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="style.css" rel="stylesheet">
+  <link href="rangeslider.css" rel="stylesheet">
 	<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
   <script src="//cdn.bootcss.com/svg.js/2.3.4/svg.js"></script>
   <script src="/vendors/svgjs/svg.draggy.js"></script>
+  <script src="/vendors/svgjs/svg.filter.js"></script>
   <script src="/vendors/svgjs/svg.foreignobject.js"></script>
   <script src="//coffeescript.org/extras/coffee-script.js"></script>
   <script src="editor.coffee" type="text/coffeescript"></script>
+  <style>
+    body { background: #ffffd9; }
+    input[type=range] {
+      width: 50%;
+      margin-left: 25%;
+    }
+  </style>
   <script type="text/coffeescript">
     $ ->
-      $.svg = SVG("editor").size('100%', '100%')
+      $.svg = SVG("editor")
       $.editor = new Editor $.svg
+      vbox = $.svg.viewbox()
+      $("#editor-zoomer").on 'input change', (e) =>
+        value = 1 / (e.target.value / 100.0)
+        w = vbox.width*value
+        h = vbox.height*value
+        $.svg.viewbox((w-vbox.width)/-2.0, (h-vbox.height)/-2.0, w, h)
   </script>
 </head>
 <body style="padding:50px;">
-  <div id="editor" style="width:100%;height:700px;"></div>
+  <div id="editor" style="width:100%;height:600px;"></div>
+  <div class=""><input id="editor-zoomer" type="range" min="50" max="400" value="100" step="1"></div>
 </body>
 </html>

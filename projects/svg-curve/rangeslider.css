@@ -1,0 +1,44 @@
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  margin: 2rem 0;
+  border-radius: 5px;
+  background-color: #ffc785;
+}
+
+input[type=range]::-moz-range-track {
+  background-color: transparent; }
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: white;
+  border: 1px solid #b86300;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: pointer; }
+
+input[type=range]::-moz-range-thumb {
+  background: white;
+  border: 1px solid #b86300;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: pointer; }
+
+input[type=range]:focus {
+  outline: none;
+  /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */ }
+
+input[type=range]::-moz-focus-outer {
+  border: 0; }
+
+.dark.blue input[type='range'] {
+  background-color: #67deeb; }
+.dark.blue input[type='range']::-webkit-slider-thumb {
+  border: 1px solid #1cbed0; }
+.dark.blue input[type=range]::-moz-range-thumb {
+  border: 1px solid #1cbed0; }
+
+/*# sourceMappingURL=rangeslider.css.map */
