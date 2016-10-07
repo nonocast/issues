@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="nonocast">
+  <!-- <link rel="shortcut icon" href="public/favicon.ico"> -->
+  <title>采用SVG实现图形编辑器</title>
+  <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/vendors/typo.min.css" rel="stylesheet">
+  <link href="/css/theme-default.css" rel="stylesheet">
+  <link href="/css/rangeslider.css" rel="stylesheet">
+  <link href="/vendors/prism/prism.css" rel="stylesheet">
+  <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="//cdn.bootcss.com/svg.js/2.3.4/svg.js"></script>
+  <script src="/vendors/svgjs/svg.draggy.js"></script>
+  <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="/vendors/coffee-script.js"></script>
+  <style type="text/css" media="screen">
+    #surface2 { width: 100%; height: 400px; }
+    @media screen and (max-width: 760px) {
+      #surface1 { width: 100%; height: 40px; }
+      #surface2 { width: 100%; height: 200px; }
+    }
+
+    input[type=range] { width: 70%; margin-left: 15%; }
+    #surface2 { background: #606060; border: 8px solid #303030; border-radius: 10px; }
+  </style>
+  <script type="text/coffeescript">
+    surface1 = ->
+      svg = SVG('surface1')
+        .size('100%', '60')
+        .viewbox(0, 0, 500, 60)
+        .attr(preserveAspectRatio: 'xMinYMin meet')
+      svg.rect(100, 40).radius(5).move(100, 10).fill('black')
+      svg.circle(40).center(50, 30).fill('black')
+      svg.text('hello').attr('font-size': 30).center(260, 30).fill('black')
+      svg.path('M 320,40 C 400,40 300,10 400,10').stroke('black').fill('transparent')
+
+    surface2 = ->
+      $("#surface2").height $("#surface2").width()/1.7
+      svg = SVG("surface2").size('100%', '100%')
+      svg.viewbox(0, 0, 600, 600/1.7)
+
+      canvas = svg.rect(600, 600/1.7).move(0, 0).fill('white').stroke('none').draggy hold:true
+      svg.use("icon-appleinc", "pack.svg").addClass("icon-appleinc").size(100, 100).center(100, 100).fill("#656565")
+      svg.use("icon-github", "pack.svg").addClass("icon-github").size(90, 90).center(230, 100).fill("#000000")
+      svg.use("icon-twitter", "pack.svg").addClass("icon-twitter").size(100, 100).center(360, 100).fill("#309fe6")
+      svg.use("icon-pinterest", "pack.svg").addClass("icon-pinterest").size(100, 100).center(490, 100).fill("#ae1622")
+      svg.use("icon-evil2", "pack.svg").addClass("icon-evil").size(90, 90).center(svg.viewbox().width-100, svg.viewbox().height-100).fill("#31d3cf")
+      vbox = svg.viewbox()
+
+      $("#editor-zoomer").on 'input change', (e) =>
+        value = 1 / (e.target.value / 100.0)
+        w = vbox.width*value
+        h = vbox.height*value
+        svg.viewbox((w-vbox.width)/-2.0, (h-vbox.height)/-2.0, w, h)
+
+      base = null
+      canvas.on 'dragstart', (e) => base = svg.viewbox()
+      canvas.on 'dragmove', (e) =>
+        bound = svg.node.getBoundingClientRect()
+        return unless bound.width > base.width
+
+        delta = e.detail.delta
+        x = base.x - delta.x
+        y = base.y - delta.y
+        svg.viewbox x, y, base.width, base.height
+
+    $ ->
+      surface1()
+      surface2()
+  </script>
+</head>
+<body class="typo">
+<script src="/vendors/prism/prism.js"></script>
+<nav class="navbar navbar-bright">
+  <div class="container">
+    <div class="navbar-header navbar-left">
+      <a class="navbar-brand" href="/">nonocast</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="header-title">
+    <div class="header-title-wrapper">
+      <h1>采用SVG实现图形编辑器</h1>
+      <p>October 07, 2016</p>
+    </div>
+  </div>
+</div>
+<div class="container main-container">
+  <div class="post">
+    <div class="content">
+      <p>可缩放矢量图形（Scalable Vector Graphics，SVG）是基于可扩展标记语言（XML），用于描述二维矢量图形的一种图形格式。SVG由W3C制定，是一个开放标准。<p>
+      <p>最简单的svg差不多就是下面这样，</p>
+      <svg width="100%" height="60" viewBox="0 0 500 60" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">
+        <rect fill="black" x="100" y="10" width="100" height="40" rx="5" ry="5"/>
+        <circle fill="black" cx="50" cy="30" r="20"/>
+        <text fill="black" x="230" y="40" font-size="30">hello</text>
+        <path stroke="black" fill="none" d="M 320,40 C 400,40 300,10 400,10" />
+      </svg>
+<p><pre><code class="language-svg"><script type="prism-html-markup"><svg width="100%" height="60" viewBox="0 0 500 60" preserveAspectRatio="xMinYMin meet" xmlns="http://www.w3.org/2000/svg">
+  <rect fill="black" x="100" y="10" width="100" height="40" rx="5" ry="5"/>
+  <circle fill="black" cx="50" cy="30" r="20"/>
+  <text fill="black" x="230" y="40" font-size="30">hello</text>
+  <path stroke="black" fill="none" d="M 320,40 C 400,40 300,10 400,10" />
+</svg></script></code></pre></p>
+      <p>通过DOM API可以直接创建和操作SVG元素，市面上有很多库可以直接拿来用，
+      <ul>
+        <li><a href="http://svgjs.com">SVG.JS</a> - <a href="https://github.com/wout/svg.js">3746 stars since Jan 2014</a></li>
+        <li><a href="https://dmitrybaranovskiy.github.io/raphael/">Raphaël</a> - <a href="https://github.com/DmitryBaranovskiy/raphael">8545 stars since Aug 2008</a></li>
+        <li><a href="http://snapsvg.io">Snap.svg</a> - <a href="https://github.com/adobe-webplatform/Snap.svg/graphs/contributors">8791 stars since Jun 2013</a></li>
+      </ul>
+      以SVG.JS为例，生成上面的SVG对应的代码如下，</p>
+<p><pre><code class="language-coffeescript">svg = SVG('surface1') # surface1是目标div的id
+        .size('100%', '60')
+        .viewbox(0, 0, 500, 60)
+        .attr(preserveAspectRatio: 'xMinYMin meet')
+svg.rect(100, 40).radius(5).move(100, 10).fill('black')
+svg.circle(40).center(50, 30).fill('black')
+svg.text('hello').attr('font-size': 30).center(260, 30).fill('black')
+svg.path('M 320,40 C 400,40 300,10 400,10').stroke('black').fill('transparent')
+</code></pre></p>
+      <p>渲染结果如下，</p>
+      <div id="surface1" style="margin-bottom: 15px;"></div>
+
+      <p>SVG有别于canvas的第一个难点就是viewport和viewbox之间的关系，因为SVG是矢量，所以到屏幕上的像素一定会存在一个转换过程。</p>
+      <ul>
+        <li>viewport: svg在屏幕上显示的像素区域，即svg元素的width, height, 默认值是(300, 150)。</li>
+        <li>viewbox: 矢量空间中可视区域，默认值和viewport一致。</li>
+        <li>preserveAspectRatio: viewbox到viewport的约束关系，默认值是<a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio">xMidYMid meet</a>, 即uniform scale, 然后viewbox和viewport的中心对齐。</li>
+      </ul>
+      
+      <p>如果只设定viewport而不设定viewbox，则矢量空间中1个单位映射到1个像素，比如viewport是(300,150)，则你在矢量空间中画rect(300,150)是正好撑满的，如果你保证viewport和viewbox是一比一的关系，我们就不谈了。</p><p>关键就在于不同的终端设备(手机, 平板)的输出viewport不同，viewport是可以通过百分比进行设置的，这样一来实际上你无法控制可以显示的像素区域，你唯一能做的就是将矢量空间的中一个区域缩放到像素区域，这个过程就是viewport和viewbox的转换。</p>
+
+      <p>通过下面的例子实际感受一下viewport和viewbox的转换。</p>
+      <div id="surface2"></div>
+      <div><input id="editor-zoomer" type="range" min="50" max="400" value="100" step="1"></div>
+      <p>通过拖动上面的slider可以改变viewbox范围进行缩放，然后在viewbox大于viewport时，拖动画布可以移动viewbox范围。</p>
+
+      <hr>
+
+      <p>接下来看SVG的交互，这才是正题。</p>
+
+      <p style="color: #666">未完待续</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="footer">
+    <div class="footer-wrapper">
+      <hr>
+      <p> © · 2016-2017 &nbsp;<a href="http://nonocast.cn">nonocast</a><span></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

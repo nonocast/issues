@@ -38,17 +38,6 @@ hr{
 
 /* end */
 
-pre{
-    background: #F9F9F9;
-    border-radius: 3px;
-    border-color: #eee;
-    font-size: 0.8em;
-    line-height: 1.55;
-    overflow: auto;
-    word-break: keep-all;
-    word-wrap: normal;
-}
-
 a.btn-default{
     color: #888;
 }
@@ -109,7 +98,7 @@ form input, form button{
 
 
 .header-title{
-    padding: 0 100px;
+    padding: 0 30px;
     width: 100%;
     position: relative;
 }
@@ -146,8 +135,7 @@ form input, form button{
 
 
 .post{
-    padding: 20px 80px;
-    padding-top: 0px;
+    padding: 30px 80px;
     margin-bottom: 20px;
 }
 
@@ -278,4 +266,8 @@ ul.tags li{
 
 .footer-wrapper hr{
     border-color: #ddd;
+}
+
+@media screen and (max-width: 760px) {
+  .post { padding-top: 0; }
 }
