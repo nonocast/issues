@@ -17,16 +17,6 @@
   <script src="/vendors/svgjs/svg.draggy.js"></script>
   <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <script src="/vendors/coffee-script.js"></script>
-  <style type="text/css" media="screen">
-    #surface2 { width: 100%; height: 400px; }
-    @media screen and (max-width: 760px) {
-      #surface1 { width: 100%; height: 40px; }
-      #surface2 { width: 100%; height: 200px; }
-    }
-
-    input[type=range] { width: 70%; margin-left: 15%; }
-    #surface2 { background: #606060; border: 8px solid #303030; border-radius: 10px; }
-  </style>
   <script type="text/coffeescript">
     surface1 = ->
       svg = SVG('surface1')
@@ -68,10 +58,65 @@
         y = base.y - delta.y
         svg.viewbox x, y, base.width, base.height
 
+    surface3 = ->
+      $("#surface3").height $("#surface2").width()/1.7
+      svg = SVG("surface3").size('100%', '100%')
+      svg.viewbox(0, 0, 600, 600/1.7)
+      new Surface3 svg
+
+    class Surface3
+      constructor: (@svg) ->
+        @curve = @svg.path().addClass("surface3-curve")
+        @cline1 = @svg.line(0,0,0,0).addClass("surface3-control-line")
+        @cline2 = @svg.line(0,0,0,0).addClass("surface3-control-line")
+        @cp1 = @svg.circle(10).center(200,280).addClass("surface3-control-point").draggy()
+        @cp2 = @svg.circle(10).center(40,180).addClass("surface3-control-point").draggy()
+        @cp3 = @svg.circle(10).center(570,30).addClass("surface3-control-point").draggy()
+        @cp4 = @svg.circle(10).center(390,290).addClass("surface3-control-point").draggy()
+        @update()
+        each.on('dragmove', (e) => @update()) for each in [@cp1, @cp2, @cp3, @cp4]
+
+      update: =>
+        @curve.plot "M #{@cp1.cx()},#{@cp1.cy()} C #{@cp2.cx()},#{@cp2.cy()} #{@cp3.cx()},#{@cp3.cy()} #{@cp4.cx()},#{@cp4.cy()}"
+        @cline1.plot @cp1.cx(), @cp1.cy(), @cp2.cx(), @cp2.cy()
+        @cline2.plot @cp3.cx(), @cp3.cy(), @cp4.cx(), @cp4.cy()
+
     $ ->
       surface1()
       surface2()
+      surface3()
   </script>
+
+  <style type="text/css" media="screen">
+    #surface2 { width: 100%; height: 400px; }
+    @media screen and (max-width: 760px) {
+      #surface1 { width: 100%; height: 40px; }
+      #surface2 { width: 100%; height: 200px; }
+      #surface3 { width: 100%; height: 200px; }
+    }
+
+    input[type=range] { width: 70%; margin-left: 15%; }
+    #surface2 { background: #606060; border: 8px solid #303030; border-radius: 10px; }
+    #surface3 { background: #fff; border: 8px solid #303030; border-radius: 10px; }
+    .surface3-curve {
+      fill: transparent;
+      stroke: #777;
+      stroke-width: 4px;
+    }
+    .surface3-control-point {
+      fill: orange;
+      stroke: orange;
+      stroke-width: 15px;
+      stroke-opacity: 0.4;
+    }
+    .surface3-control-point:hover {
+      stroke-opacity: 1.0;
+    }
+    .surface3-control-line {
+      stroke: #ccc;
+      stroke-width: 1px;
+    }
+  </style>
 </head>
 <body class="typo">
 <script src="/vendors/prism/prism.js"></script>
@@ -141,16 +186,72 @@ svg.path('M 320,40 C 400,40 300,10 400,10').stroke('black').fill('transparent')
       <div><input id="editor-zoomer" type="range" min="50" max="400" value="100" step="1"></div>
       <p>通过拖动上面的slider可以改变viewbox范围进行缩放，然后在viewbox大于viewport时，拖动画布可以移动viewbox范围。</p>
 
+      <p>跑个题，上面Apple, Github的图案是通过Sprite方式进行引用，
+      <p><pre><code class="language-coffeescript">svg.use("icon-github", "pack.svg")</code></pre></p>
+      其中的pack.svg就是多个symbol的集合，通过<a href="https://icomoon.io">❍ IcoMoon</a>就可以在线选择下载svg，当然手动自己拼一下也不难。</p>
+
       <hr>
 
       <p>接下来看SVG的交互，这才是正题。</p>
 
-      <p style="color: #666">未完待续</p>
+      <p>先来看如何控制Bezier曲线，效果如下，</p>
+      <p><div id="surface3"></div></p>
+      <p>其实原理非常简单，通过4个点决定一个Bezier，然后在控制点变化时update曲线即可，拖动用了SVG.JS的draggy plugin，代码如下，</p>
+
+<p><pre><code class="language-coffeescript">class Surface3
+  constructor: (@svg) ->
+    @curve = @svg.path().addClass("surface3-curve")
+    @cline1 = @svg.line(0,0,0,0).addClass("surface3-control-line")
+    @cline2 = @svg.line(0,0,0,0).addClass("surface3-control-line")
+    @cp1 = @svg.circle(10).center(200,280).addClass("surface3-control-point").draggy()
+    @cp2 = @svg.circle(10).center(40,180).addClass("surface3-control-point").draggy()
+    @cp3 = @svg.circle(10).center(570,30).addClass("surface3-control-point").draggy()
+    @cp4 = @svg.circle(10).center(390,290).addClass("surface3-control-point").draggy()
+    @update()
+    each.on('dragmove', (e) => @update()) for each in [@cp1, @cp2, @cp3, @cp4]
+
+  update: =>
+    @curve.plot "M #{@cp1.cx()},#{@cp1.cy()} C #{@cp2.cx()},#{@cp2.cy()} #{@cp3.cx()},#{@cp3.cy()} #{@cp4.cx()},#{@cp4.cy()}"
+    @cline1.plot @cp1.cx(), @cp1.cy(), @cp2.cx(), @cp2.cy()
+    @cline2.plot @cp3.cx(), @cp3.cy(), @cp4.cx(), @cp4.cy()</code></pre></p>
+
+      <p>另外一点就是SVG对象通过class是在CSS魔掌的控制之下的，嘿嘿，但在选择器上有点问题，默认只能做一层选择，需要借助script fix，这个另说。</p>
+
+<p><pre><code class="language-css">.surface3-curve {
+  fill: transparent;
+  stroke: #777;
+  stroke-width: 4px;
+}
+.surface3-control-point {
+  fill: orange;
+  stroke: orange;
+  stroke-width: 15px;
+  stroke-opacity: 0.4;
+}
+.surface3-control-point:hover {
+  stroke-opacity: 1.0;
+}
+.surface3-control-line {
+  stroke: #ccc;
+  stroke-width: 1px;
+}</code></pre></p>
+    
+      <h2>拾取和连线</h2>
+      <p>我们知道SVG相比canvas在操作上很大的优势就是DOM本身可以给出mousedown和mouseup event，但在一些情况下需要手动判定拾取对象，这个时候终于需要Matrix登场了，还是先看效果，</p>
+      <p><div class="surface4"></div></p>
+
+      <p>另外在拾取比较细的曲线时拾取是比较困难的，这个时候需要借助辅助对象帮忙，来看下面这个例子，</p>
+      <p style="color: #aaa;margin-top:50px;">未完待续</p>
     </div>
   </div>
 </div>
 
-<div class="container">
+<div class="container" style="margin-bottom:30px;">
+  <div id="uyan_frame"></div>
+  <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2115910"></script>
+</div>
+
+<div class="container" style="display: none;">
   <div class="footer">
     <div class="footer-wrapper">
       <hr>
