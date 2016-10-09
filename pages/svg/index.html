@@ -12,11 +12,14 @@
   <link href="/css/theme-default.css" rel="stylesheet">
   <link href="/css/rangeslider.css" rel="stylesheet">
   <link href="/vendors/prism/prism.css" rel="stylesheet">
+  <link href="editor.css" rel="stylesheet">
   <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <script src="//cdn.bootcss.com/svg.js/2.3.4/svg.js"></script>
   <script src="/vendors/svgjs/svg.draggy.js"></script>
-  <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <script src="/vendors/svgjs/svg.foreignobject.js"></script>
   <script src="/vendors/coffee-script.js"></script>
+  <script src="editor.coffee" type="text/coffeescript"></script>
   <script type="text/coffeescript">
     surface1 = ->
       svg = SVG('surface1')
@@ -41,7 +44,7 @@
       svg.use("icon-evil2", "pack.svg").addClass("icon-evil").size(90, 90).center(svg.viewbox().width-100, svg.viewbox().height-100).fill("#31d3cf")
       vbox = svg.viewbox()
 
-      $("#editor-zoomer").on 'input change', (e) =>
+      $("#surface2-zoomer").on 'input change', (e) =>
         value = 1 / (e.target.value / 100.0)
         w = vbox.width*value
         h = vbox.height*value
@@ -62,29 +65,15 @@
       $("#surface3").height $("#surface2").width()/1.7
       svg = SVG("surface3").size('100%', '100%')
       svg.viewbox(0, 0, 600, 600/1.7)
-      new Surface3 svg
+      new $.Surface3 svg
 
-    class Surface3
-      constructor: (@svg) ->
-        @curve = @svg.path().addClass("surface3-curve")
-        @cline1 = @svg.line(0,0,0,0).addClass("surface3-control-line")
-        @cline2 = @svg.line(0,0,0,0).addClass("surface3-control-line")
-        @cp1 = @svg.circle(10).center(200,280).addClass("surface3-control-point").draggy()
-        @cp2 = @svg.circle(10).center(40,180).addClass("surface3-control-point").draggy()
-        @cp3 = @svg.circle(10).center(570,30).addClass("surface3-control-point").draggy()
-        @cp4 = @svg.circle(10).center(390,290).addClass("surface3-control-point").draggy()
-        @update()
-        each.on('dragmove', (e) => @update()) for each in [@cp1, @cp2, @cp3, @cp4]
 
-      update: =>
-        @curve.plot "M #{@cp1.cx()},#{@cp1.cy()} C #{@cp2.cx()},#{@cp2.cy()} #{@cp3.cx()},#{@cp3.cy()} #{@cp4.cx()},#{@cp4.cy()}"
-        @cline1.plot @cp1.cx(), @cp1.cy(), @cp2.cx(), @cp2.cy()
-        @cline2.plot @cp3.cx(), @cp3.cy(), @cp4.cx(), @cp4.cy()
-
+    surface4 = -> new $.Surface4 'surface4'
     $ ->
       surface1()
       surface2()
       surface3()
+      surface4()
   </script>
 
   <style type="text/css" media="screen">
@@ -93,6 +82,7 @@
       #surface1 { width: 100%; height: 40px; }
       #surface2 { width: 100%; height: 200px; }
       #surface3 { width: 100%; height: 200px; }
+      #surface4 { width: 100%; height: 200px; }
     }
 
     input[type=range] { width: 70%; margin-left: 15%; }
@@ -116,6 +106,7 @@
       stroke: #ccc;
       stroke-width: 1px;
     }
+    #surface4 { background: #fff; border: 8px solid #303030; border-radius: 10px; }
   </style>
 </head>
 <body class="typo">
@@ -183,7 +174,7 @@ svg.path('M 320,40 C 400,40 300,10 400,10').stroke('black').fill('transparent')
 
       <p>通过下面的例子实际感受一下viewport和viewbox的转换。</p>
       <div id="surface2"></div>
-      <div><input id="editor-zoomer" type="range" min="50" max="400" value="100" step="1"></div>
+      <div><input id="surface2-zoomer" type="range" min="50" max="400" value="100" step="1"></div>
       <p>通过拖动上面的slider可以改变viewbox范围进行缩放，然后在viewbox大于viewport时，拖动画布可以移动viewbox范围。</p>
 
       <p>跑个题，上面Apple, Github的图案是通过Sprite方式进行引用，
@@ -236,12 +227,11 @@ svg.path('M 320,40 C 400,40 300,10 400,10').stroke('black').fill('transparent')
   stroke-width: 1px;
 }</code></pre></p>
     
-      <h2>拾取和连线</h2>
-      <p>我们知道SVG相比canvas在操作上很大的优势就是DOM本身可以给出mousedown和mouseup event，但在一些情况下需要手动判定拾取对象，这个时候终于需要Matrix登场了，还是先看效果，</p>
-      <p><div class="surface4"></div></p>
-
-      <p>另外在拾取比较细的曲线时拾取是比较困难的，这个时候需要借助辅助对象帮忙，来看下面这个例子，</p>
-      <p style="color: #aaa;margin-top:50px;">未完待续</p>
+      <p>有了上面这些概念，弄一个编辑器还不是分分秒秒的事情，试试拖动矩形框，双击改变文字内容，以及创建连线。</p>
+      <p><div id="surface4"></div></p>
+      <!-- <div><input id="surface4-zoomer" type="range" min="50" max="400" value="100" step="1"></div> -->
+      <p>代码就不展开了，直接右键查看代码，你懂的。</p>
+      <p>以上</p>
     </div>
   </div>
 </div>
