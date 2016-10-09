@@ -36,7 +36,12 @@
       svg = SVG("surface2").size('100%', '100%')
       svg.viewbox(0, 0, 600, 600/1.7)
 
-      canvas = svg.rect(600, 600/1.7).move(0, 0).fill('white').stroke('none').draggy hold:true
+      pattern = svg.pattern 20, 20, (add) ->
+        add.rect(20,20).fill('#ccc')
+        add.rect(10,10).fill('#fff')
+        add.rect(10,10).move(10,10).fill('#fff')
+
+      canvas = svg.rect(600, 600/1.7).move(0, 0).fill(pattern).stroke('none').draggy hold:true
       svg.use("icon-appleinc", "pack.svg").addClass("icon-appleinc").size(100, 100).center(100, 100).fill("#656565")
       svg.use("icon-github", "pack.svg").addClass("icon-github").size(90, 90).center(230, 100).fill("#000000")
       svg.use("icon-twitter", "pack.svg").addClass("icon-twitter").size(100, 100).center(360, 100).fill("#309fe6")
