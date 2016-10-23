@@ -67,7 +67,7 @@
         svg.viewbox x, y, base.width, base.height
 
     surface3 = ->
-      $("#surface3").height $("#surface2").width()/1.7
+      $("#surface3").height $("#surface3").width()/1.7
       svg = SVG("surface3").size('100%', '100%')
       svg.viewbox(0, 0, 600, 600/1.7)
       new $.Surface3 svg

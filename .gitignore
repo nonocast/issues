@@ -3,6 +3,7 @@
 # Build results
 [Tt]arget/
 [Bb]uild/
+dist/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
